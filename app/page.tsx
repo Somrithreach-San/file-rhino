@@ -7,12 +7,17 @@ import {
   SignedOut,
   SignInButton,
   SignOutButton,
+  useOrganization,
 } from "@clerk/nextjs";
 import { useMutation, useQuery } from "convex/react";
 //import Image from "next/image";
 
 export default function Home() {
-  const files = useQuery(api.files.getFiles);
+  const { organization } = useOrganization();
+  const files = useQuery(
+    api.files.getFiles,
+    organization?.id ? { orgId: organization.id } : "skip"
+  );
   const createFile = useMutation(api.files.createFile);
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
@@ -35,8 +40,10 @@ export default function Home() {
 
         <Button
           onClick={() => {
+            if (!organization) return;
             createFile({
               name: "Hello world",
+              orgId: organization?.id,
             });
           }}
         >
