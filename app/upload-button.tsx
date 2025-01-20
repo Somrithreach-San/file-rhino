@@ -36,6 +36,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { Doc } from "@/convex/_generated/dataModel";
 
 export default function UploadButton() {
   const { toast } = useToast(); // added this line
@@ -59,35 +60,43 @@ export default function UploadButton() {
     if (!orgId) return;
     const postUrl = await generateUploadUrl();
 
+    const fileType = values.file[0].type;
+
     const result = await fetch(postUrl, {
       method: "POST",
-      headers: { "Content-Type": values.file[0].type },
+      headers: { "Content-Type": fileType },
       body: values.file[0],
     });
     const { storageId } = await result.json();
 
+    const types = {
+      "image/png": "image",
+      "application/pdf": "pdf",
+      "text/csv": "csv",
+    } as Record<string, Doc<"files">["type"]>;
+
     try {
       await createFile({
-        // added await here
         name: values.title,
         fileId: storageId,
         orgId,
+        type: types[fileType],
       });
 
-      form.reset(); // added this line
+      form.reset();
 
-      setIsFileDialogOpen(false); // added this line
+      setIsFileDialogOpen(false);
 
       toast({
-        variant: "success", // added this line
-        title: "File Uploaded", // added this line
-        description: "Now everyone can view your file", // added this line
+        variant: "success",
+        title: "File Uploaded",
+        description: "Now everyone can view your file",
       });
     } catch (err) {
       toast({
-        variant: "destructive", // added this line
-        title: "Something went wrong", // added this line
-        description: "Your file could not be uploaded, try again", // added this line
+        variant: "destructive",
+        title: "Something went wrong",
+        description: "Your file could not be uploaded, try again",
       });
     }
   }
@@ -97,7 +106,7 @@ export default function UploadButton() {
     orgId = organization.organization?.id ?? user.user?.id;
   }
 
-  const [isFileDialogOpen, setIsFileDialogOpen] = useState(false); // added this line and its import
+  const [isFileDialogOpen, setIsFileDialogOpen] = useState(false);
 
   const createFile = useMutation(api.files.createFile);
 

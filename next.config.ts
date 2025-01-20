@@ -1,7 +1,13 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        hostname: "grandiose-chicken-156.convex.cloud", // Whitelisted domain
+      },
+    ],
+  },
 };
 
 export default nextConfig;
