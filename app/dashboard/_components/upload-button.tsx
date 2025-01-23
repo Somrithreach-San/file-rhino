@@ -39,7 +39,7 @@
 // import { Doc } from "@/convex/_generated/dataModel";
 
 // export default function UploadButton() {
-//   const { toast } = useToast(); // added this line
+//   const { toast } = useToast();
 //   const organization = useOrganization();
 //   const user = useUser();
 //   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
@@ -93,6 +93,8 @@
 //         description: "Now everyone can view your file",
 //       });
 //     } catch (err) {
+//       console.error("Error uploading file:", err); // Log the error for debugging
+
 //       toast({
 //         variant: "destructive",
 //         title: "Something went wrong",
@@ -174,6 +176,7 @@
 //     </Dialog>
 //   );
 // }
+
 "use client";
 import { Button } from "@/components/ui/button";
 
@@ -231,51 +234,69 @@ export default function UploadButton() {
   const fileRef = form.register("file");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    console.log(values.file);
-    if (!orgId) return;
-    const postUrl = await generateUploadUrl();
-
-    const fileType = values.file[0].type;
-
-    const result = await fetch(postUrl, {
-      method: "POST",
-      headers: { "Content-Type": fileType },
-      body: values.file[0],
-    });
-    const { storageId } = await result.json();
-
-    const types = {
-      "image/png": "image",
-      "application/pdf": "pdf",
-      "text/csv": "csv",
-    } as Record<string, Doc<"files">["type"]>;
-
     try {
-      await createFile({
-        name: values.title,
-        fileId: storageId,
-        orgId,
-        type: types[fileType],
+      console.log(values);
+      console.log(values.file);
+      if (!orgId) return;
+      const postUrl = await generateUploadUrl();
+
+      const fileType = values.file[0].type;
+
+      const result = await fetch(postUrl, {
+        method: "POST",
+        headers: { "Content-Type": fileType },
+        body: values.file[0],
       });
+      const { storageId } = await result.json();
 
-      form.reset();
+      const types = {
+        "image/png": "image",
+        "application/pdf": "pdf",
+        "text/csv": "csv",
+      } as Record<string, Doc<"files">["type"]>;
 
-      setIsFileDialogOpen(false);
+      try {
+        await createFile({
+          name: values.title,
+          fileId: storageId,
+          orgId,
+          type: types[fileType],
+        });
 
-      toast({
-        variant: "success",
-        title: "File Uploaded",
-        description: "Now everyone can view your file",
-      });
+        form.reset();
+
+        setIsFileDialogOpen(false);
+
+        toast({
+          variant: "success",
+          title: "File Uploaded",
+          description: "Now everyone can view your file",
+        });
+      } catch (err) {
+        console.error("Error uploading file:", err);
+
+        if (err instanceof Error) {
+          console.error("Error Message:", err.message);
+
+          if (err.name === "ConvexError" && "code" in err) {
+            console.error(
+              "Convex Error:",
+              err.message,
+              (err as { code: string }).code
+            );
+          }
+        } else {
+          console.error("Unknown Error Type:", err);
+        }
+
+        toast({
+          variant: "destructive",
+          title: "Something went wrong",
+          description: "Your file could not be uploaded, try again",
+        });
+      }
     } catch (err) {
-      console.error("Error uploading file:", err); // Log the error for debugging
-
-      toast({
-        variant: "destructive",
-        title: "Something went wrong",
-        description: "Your file could not be uploaded, try again",
-      });
+      console.error("General Error:", err);
     }
   }
 
