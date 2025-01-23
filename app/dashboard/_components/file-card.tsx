@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Doc, Id } from "@/convex/_generated/dataModel";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatRelative } from "date-fns";
 
 import {
   DropdownMenu,
@@ -19,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   DeleteIcon,
+  FileIcon,
   FileTextIcon,
   GanttChartIcon,
   ImageIcon,
@@ -27,6 +30,7 @@ import {
   StarHalf,
   StarIcon,
   TrashIcon,
+  UndoIcon,
 } from "lucide-react";
 
 import {
@@ -42,7 +46,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ReactNode, useState } from "react";
 import { deleteFile } from "@/convex/files";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
@@ -56,7 +60,9 @@ function FileCardActions({
   isFavorited: boolean;
 }) {
   const deleteFile = useMutation(api.files.deleteFile);
+  const retoreFile = useMutation(api.files.restoreFile);
   const toggleFavorite = useMutation(api.files.toggleFavorite);
+
   const { toast } = useToast();
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   return (
@@ -66,8 +72,8 @@ function FileCardActions({
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              account and remove your data from our servers.
+              This action will mark the file for our deletion process. Files are
+              deleted periodically.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -78,9 +84,10 @@ function FileCardActions({
                   fileId: file._id,
                 });
                 toast({
-                  variant: "default", // added this line
-                  title: "File deleted", // added this line
-                  description: "Your file is now gone from the system",
+                  variant: "default",
+                  title: "File marked for deletion",
+                  description:
+                    "Your file will be automatically deleted after 30 days.",
                 });
               }}
             >
@@ -95,6 +102,15 @@ function FileCardActions({
           <MoreVertical></MoreVertical>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
+          <DropdownMenuItem
+            onClick={() => {
+              window.open(getFileUrl(file.fileId), "_blank");
+            }}
+            className="flex gap-1 items-center cursor-pointer"
+          >
+            <FileIcon className="w-4 h-4" /> Download
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={() => {
               toggleFavorite({
@@ -113,16 +129,29 @@ function FileCardActions({
               {isFavorited ? "Unfavorite" : "Favorite"}
             </span>
           </DropdownMenuItem>
-          {/* <Protect role="org:admin" fallback={<></>}> */}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            onClick={() => setIsConfirmOpen(true)}
-            className="flex gap-1 text-red-600 items-center cursor-pointer"
-          >
-            <TrashIcon className="w-4 h-4" />
-            Delete
-          </DropdownMenuItem>
-          {/* </Protect> */}
+          <Protect role="org:admin" fallback={<></>}>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => {
+                if (file.shouldDelete) {
+                  retoreFile({ fileId: file._id });
+                } else {
+                  setIsConfirmOpen(true);
+                }
+              }}
+              className="flex gap-1 items-center cursor-pointer"
+            >
+              {file.shouldDelete ? (
+                <div className="flex gap-1 text-green-600 items-center cursor-pointer">
+                  <UndoIcon className="w-4 h-4" /> Restore
+                </div>
+              ) : (
+                <div className="flex gap-1 text-red-600 items-center cursor-pointer">
+                  <TrashIcon className="w-4 h-4" /> Delete
+                </div>
+              )}
+            </DropdownMenuItem>
+          </Protect>
         </DropdownMenuContent>
       </DropdownMenu>
     </>
@@ -140,6 +169,10 @@ export function FileCard({
   file: Doc<"files">;
   favorites: Doc<"favorites">[];
 }) {
+  const userProfile = useQuery(api.users.getUserProfile, {
+    userId: file.userId,
+  });
+
   const typeIcons = {
     image: <ImageIcon />,
     pdf: <FileTextIcon />,
@@ -153,7 +186,7 @@ export function FileCard({
   return (
     <Card>
       <CardHeader className="relative">
-        <CardTitle className="flex gap-2">
+        <CardTitle className="flex gap-2 text-base font-normal">
           <div className="flex justify-center">{typeIcons[file.type]}</div>
           {""}
           {file.name}
@@ -174,14 +207,17 @@ export function FileCard({
         {file.type === "csv" && <GanttChartIcon className="w-20 h-20" />}
         {file.type === "pdf" && <FileTextIcon className="w-20 h-20" />}
       </CardContent>
-      <CardFooter className="flex justify-center">
-        <Button
-          onClick={() => {
-            window.open(getFileUrl(file.fileId), "_blank");
-          }}
-        >
-          Download
-        </Button>
+      <CardFooter className="flex justify-between">
+        <div className="flex gap-2 text-xs text-gray-700 w-40 items-center">
+          <Avatar className="w-6 h-6">
+            <AvatarImage src={userProfile?.image} />
+            <AvatarFallback>CN</AvatarFallback>
+          </Avatar>
+          {userProfile?.name}
+        </div>
+        <div className="text-xs text-gray-700">
+          Uploaded on {formatRelative(new Date(file._creationTime), new Date())}
+        </div>
       </CardFooter>
     </Card>
   );

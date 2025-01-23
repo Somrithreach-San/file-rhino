@@ -1,16 +1,35 @@
 import { Button } from "@/components/ui/button";
 import {
   OrganizationSwitcher,
-  SignedOut,
   SignInButton,
+  SignedIn,
+  SignedOut,
   UserButton,
+  useSession,
 } from "@clerk/nextjs";
+import Image from "next/image";
+import Link from "next/link";
 
 export function Header() {
   return (
-    <div className="border-b py-4 bg-gray-50">
+    <div className="relative z-10 border-b py-4 bg-gray-50">
       <div className="items-center container mx-auto justify-between flex">
-        <div>File Rhino</div>
+        <Link href="/" className="flex gap-2 items-center text-xl text-black">
+          <Image
+            src="/rhino-logo.png"
+            width="70"
+            height="70"
+            alt="file drive logo"
+          />
+          File Rhino
+        </Link>
+
+        <SignedIn>
+          <Button variant={"outline"}>
+            <Link href="/dashboard/files">Your Files</Link>
+          </Button>
+        </SignedIn>
+
         <div className="flex gap-2">
           <OrganizationSwitcher />
           <UserButton />

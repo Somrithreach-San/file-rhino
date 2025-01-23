@@ -19,10 +19,10 @@ function Placeholder() {
   return (
     <div className="flex flex-col gap-8 w-full items-center mt-24">
       <Image
-        src="/empty.svg"
+        src="/Empty_State_Mascot.svg"
         alt="No files"
-        width={300}
-        height={300}
+        width={200}
+        height={200}
         className="mx-auto"
       />
       <div className="text-2xl">You have no files, upload one now</div>
@@ -34,9 +34,11 @@ function Placeholder() {
 export function FileBrowser({
   title,
   favoritesOnly,
+  deletedOnly,
 }: {
   title: string;
   favoritesOnly?: boolean;
+  deletedOnly?: boolean;
 }) {
   const organization = useOrganization();
   const user = useUser();
@@ -57,7 +59,7 @@ export function FileBrowser({
 
   const files = useQuery(
     api.files.getFiles,
-    orgId ? { orgId, query, favorites: favoritesOnly } : "skip"
+    orgId ? { orgId, query, favorites: favoritesOnly, deletedOnly } : "skip"
   );
   const isLoading = files === undefined;
 

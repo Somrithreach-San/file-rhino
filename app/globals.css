@@ -1,3 +1,15 @@
+@font-face {
+  font-family: "Flunkies BB";
+  src: url("/fonts/FlunkiesBB.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+.logo {
+  font-family: "Flunkies BB", Arial, Helvetica, sans-serif;
+  font-size: 2rem;
+  font-weight: normal;
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
