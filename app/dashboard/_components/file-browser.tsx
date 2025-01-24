@@ -17,10 +17,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import UploadButton from "./upload-button";
+
 import { Doc } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
 import { usePathname } from "next/navigation";
+import { UploadButton } from "./upload-button";
 
 // Placeholder Component for Empty States
 function Placeholder({
