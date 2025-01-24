@@ -32,14 +32,14 @@ import {
 import { api } from "@/convex/_generated/api";
 
 import { useOrganization, useUser } from "@clerk/nextjs";
-import { useMutation } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
 
 export default function UploadButton() {
-  const { toast } = useToast();
+  const { toast } = useToast(); // added this line
   const organization = useOrganization();
   const user = useUser();
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
@@ -155,8 +155,6 @@ export default function UploadButton() {
         description: "Now everyone can view your file.",
       });
     } catch (err) {
-      console.error("Error uploading file:", err);
-
       toast({
         variant: "destructive",
         title: "Something went wrong",

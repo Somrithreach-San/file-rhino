@@ -2,8 +2,10 @@ import { Button } from "@/components/ui/button";
 import {
   OrganizationSwitcher,
   SignInButton,
+  SignedIn,
   SignedOut,
   UserButton,
+  useSession,
 } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";

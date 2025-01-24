@@ -4,6 +4,7 @@ import {
   FormControl,
   FormField,
   FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -17,6 +18,7 @@ const formSchema = z.object({
 });
 
 export function SearchBar({
+  query,
   setQuery,
 }: {
   query: string;
