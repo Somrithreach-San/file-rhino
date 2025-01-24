@@ -1,11 +1,12 @@
 "use client";
-import { useState } from "react";
 import { useOrganization, useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
+
 import { FileCard } from "./file-card";
 import Image from "next/image";
 import { GridIcon, Loader2, RowsIcon } from "lucide-react";
 import { SearchBar } from "./search-bar";
+import { useState } from "react";
 import { DataTable } from "./file-table";
 import { columns } from "./columns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -16,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import { Label } from "@/components/ui/label";
 
 import { Doc } from "@/convex/_generated/dataModel";
@@ -41,20 +43,22 @@ function Placeholder({
     trash: "/Empty_State_Mascot_Trash.svg", // Change to appropriate image for trash
   };
 
+
+function Placeholder() {
   return (
     <div className="flex flex-col gap-8 w-full items-center mt-24">
       <Image
-        alt={`An image for ${context} empty state`}
+        alt="an image of a picture and directory icon"
         width="150"
         height="150"
-        src={imageSrc[context]}
+        src="/Empty_State_Mascot.svg"
       />
-      <div className="text-2xl">{message[context]}</div>
+      <div className="text-2xl">You have no files, upload one now</div>
+      <UploadButton />
     </div>
   );
 }
 
-// FileBrowser Component
 export function FileBrowser({
   title,
   favoritesOnly,
@@ -64,13 +68,6 @@ export function FileBrowser({
   favoritesOnly?: boolean;
   deletedOnly?: boolean;
 }) {
-  const pathname = usePathname();
-  const context = pathname.includes("/dashboard/favorites")
-    ? "favorites"
-    : pathname.includes("/dashboard/trash")
-      ? "trash"
-      : "files";
-
   const organization = useOrganization();
   const user = useUser();
   const [query, setQuery] = useState("");
@@ -170,7 +167,7 @@ export function FileBrowser({
         </TabsContent>
       </Tabs>
 
-      {files?.length === 0 && <Placeholder context={context} />}
+      {files?.length === 0 && <Placeholder />}
     </div>
   );
 }
