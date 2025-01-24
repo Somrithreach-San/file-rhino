@@ -1,13 +1,11 @@
 "use client";
+import { useState } from "react";
 import { useOrganization, useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
-
-import { UploadButton } from "./upload-button";
 import { FileCard } from "./file-card";
 import Image from "next/image";
 import { GridIcon, Loader2, RowsIcon } from "lucide-react";
 import { SearchBar } from "./search-bar";
-import { useState } from "react";
 import { DataTable } from "./file-table";
 import { columns } from "./columns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,26 +16,45 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import { Label } from "@/components/ui/label";
+
 import { Doc } from "@/convex/_generated/dataModel";
 import { api } from "@/convex/_generated/api";
+import { usePathname } from "next/navigation";
+import UploadButton from "./upload-button";
 
-function Placeholder() {
+// Placeholder Component for Empty States
+function Placeholder({
+  context,
+}: {
+  context: "files" | "favorites" | "trash";
+}) {
+  const message = {
+    files: "You have no files, upload one now",
+    favorites: "You have no favorite files yet, add some!",
+    trash: "Your trash is empty, no files have been deleted.",
+  };
+
+  const imageSrc = {
+    files: "/Empty_State_Mascot_File.svg", // Change to appropriate image for files
+    favorites: "/Empty_State_Mascot_Favorite.svg", // Change to appropriate image for favorites
+    trash: "/Empty_State_Mascot_Trash.svg", // Change to appropriate image for trash
+  };
+
   return (
     <div className="flex flex-col gap-8 w-full items-center mt-24">
       <Image
-        alt="an image of a picture and directory icon"
-        width="300"
-        height="300"
-        src="/empty.svg"
+        alt={`An image for ${context} empty state`}
+        width="150"
+        height="150"
+        src={imageSrc[context]}
       />
-      <div className="text-2xl">You have no files, upload one now</div>
-      <UploadButton />
+      <div className="text-2xl">{message[context]}</div>
     </div>
   );
 }
 
+// FileBrowser Component
 export function FileBrowser({
   title,
   favoritesOnly,
@@ -47,6 +64,13 @@ export function FileBrowser({
   favoritesOnly?: boolean;
   deletedOnly?: boolean;
 }) {
+  const pathname = usePathname();
+  const context = pathname.includes("/dashboard/favorites")
+    ? "favorites"
+    : pathname.includes("/dashboard/trash")
+      ? "trash"
+      : "files";
+
   const organization = useOrganization();
   const user = useUser();
   const [query, setQuery] = useState("");
@@ -146,7 +170,7 @@ export function FileBrowser({
         </TabsContent>
       </Tabs>
 
-      {files?.length === 0 && <Placeholder />}
+      {files?.length === 0 && <Placeholder context={context} />}
     </div>
   );
 }

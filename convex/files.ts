@@ -81,7 +81,7 @@
 //     type: v.optional(fileTypes), // Make `type` optional
 //   },
 //   async handler(ctx, args) {
-//     const identity = await ctx.auth.getUserIdentity();
+//     const hasAccess = await hasAccessToOrg(ctx, args.orgId);
 
 //     if (!hasAccess) {
 //       throw new ConvexError("You do not have access to this org");
@@ -92,6 +92,7 @@
 
 //     await ctx.db.insert("files", {
 //       name: args.name,
+//       orgId: args.orgId,
 //       fileId: args.fileId,
 //       type: fileType,
 //       userId: hasAccess.user._id,
@@ -99,7 +100,6 @@
 //   },
 // });
 
-// // Get files query (modified for personal file access)
 // export const getFiles = query({
 //   args: {
 //     orgId: v.string(),
@@ -116,13 +116,13 @@
 
 //     const hasAccess = await hasAccessToOrg(ctx, args.orgId);
 
-//     if (!user) {
+//     if (!hasAccess) {
 //       return [];
 //     }
 
 //     let files = await ctx.db
 //       .query("files")
-//       .withIndex("by_orgId", (q) => q.eq("orgId", orgId)) // Using default orgId
+//       .withIndex("by_orgId", (q) => q.eq("orgId", args.orgId))
 //       .collect();
 
 //     const query = args.query;
@@ -136,7 +136,7 @@
 //       const favorites = await ctx.db
 //         .query("favorites")
 //         .withIndex("by_userId_orgId_fileId", (q) =>
-//           q.eq("userId", user._id).eq("orgId", orgId)
+//           q.eq("userId", hasAccess.user._id).eq("orgId", args.orgId)
 //         )
 //         .collect();
 
@@ -176,7 +176,6 @@
 //   },
 // });
 
-// // Delete all files mutation
 // export const deleteAllFiles = internalMutation({
 //   args: {},
 //   async handler(ctx) {
@@ -216,7 +215,6 @@
 //   },
 // });
 
-// // Toggle favorite mutation
 // export const toggleFavorite = mutation({
 //   args: { fileId: v.id("files") },
 //   async handler(ctx, args) {
@@ -248,12 +246,10 @@
 //   },
 // });
 
-// // Get all favorites query
 // export const getAllFavorites = query({
 //   args: { orgId: v.string() },
 //   async handler(ctx, args) {
-//     const orgId = args.orgId || defaultOrgId;
-//     const hasAccess = await hasAccessToOrg(ctx, orgId);
+//     const hasAccess = await hasAccessToOrg(ctx, args.orgId);
 
 //     if (!hasAccess) {
 //       return [];
@@ -262,14 +258,13 @@
 //     const favorites = await ctx.db
 //       .query("favorites")
 //       .withIndex("by_userId_orgId_fileId", (q) =>
-//         q.eq("userId", hasAccess.user._id).eq("orgId", orgId)
+//         q.eq("userId", hasAccess.user._id).eq("orgId", args.orgId)
 //       )
 //       .collect();
 //     return favorites;
 //   },
 // });
 
-// // Helper function to check access to file
 // async function hasAccessToFile(
 //   ctx: QueryCtx | MutationCtx,
 //   fileId: Id<"files">
@@ -287,17 +282,6 @@
 //   }
 
 //   return { user: hasAccess.user, file };
-// }
-
-// // Helper function to assert file deletion permissions
-// function assertCanDeleteFile(user: Doc<"users">, file: Doc<"files">) {
-//   const canDelete =
-//     file.userId === user._id ||
-//     user.orgIds.find((org) => org.orgId === file.orgId)?.role === "admin";
-
-//   if (!canDelete) {
-//     throw new ConvexError("you have no access to delete this file");
-//   }
 // }
 
 import { ConvexError, v } from "convex/values";
