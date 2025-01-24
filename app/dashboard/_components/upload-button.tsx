@@ -54,33 +54,95 @@ export default function UploadButton() {
 
   const fileRef = form.register("file");
 
+  // async function onSubmit(values: z.infer<typeof formSchema>) {
+  //   console.log(values);
+  //   console.log(values.file);
+  //   if (!orgId) return;
+  //   const postUrl = await generateUploadUrl();
+
+  //   const fileType = values.file[0].type;
+
+  //   const result = await fetch(postUrl, {
+  //     method: "POST",
+  //     headers: { "Content-Type": fileType },
+  //     body: values.file[0],
+  //   });
+  //   const { storageId } = await result.json();
+
+  //   const types = {
+  //     "image/png": "image",
+  //     "application/pdf": "pdf",
+  //     "text/csv": "csv",
+  //   } as Record<string, Doc<"files">["type"]>;
+
+  //   try {
+  //     await createFile({
+  //       name: values.title,
+  //       fileId: storageId,
+  //       orgId,
+  //       type: types[fileType],
+  //     });
+
+  //     form.reset();
+
+  //     setIsFileDialogOpen(false);
+
+  //     toast({
+  //       variant: "success",
+  //       title: "File Uploaded",
+  //       description: "Now everyone can view your file",
+  //     });
+  //   } catch (err) {
+  //     console.error("Error uploading file:", err); // Log the error for debugging
+
+  //     toast({
+  //       variant: "destructive",
+  //       title: "Something went wrong",
+  //       description: "Your file could not be uploaded, try again",
+  //     });
+  //   }
+  // }
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     console.log(values.file);
-    if (!orgId) return;
-    const postUrl = await generateUploadUrl();
 
+    if (!orgId) return;
+
+    const postUrl = await generateUploadUrl();
     const fileType = values.file[0].type;
 
-    const result = await fetch(postUrl, {
-      method: "POST",
-      headers: { "Content-Type": fileType },
-      body: values.file[0],
-    });
-    const { storageId } = await result.json();
-
+    // Map file types with a fallback for unsupported types
     const types = {
       "image/png": "image",
       "application/pdf": "pdf",
       "text/csv": "csv",
     } as Record<string, Doc<"files">["type"]>;
 
+    const fileCategory = types[fileType];
+
+    if (!fileCategory) {
+      toast({
+        variant: "destructive",
+        title: "Unsupported File Type",
+        description: `The file type "${fileType}" is not supported.`,
+      });
+      return;
+    }
+
+    const result = await fetch(postUrl, {
+      method: "POST",
+      headers: { "Content-Type": fileType },
+      body: values.file[0],
+    });
+
+    const { storageId } = await result.json();
+
     try {
       await createFile({
         name: values.title,
         fileId: storageId,
         orgId,
-        type: types[fileType],
+        type: fileCategory, // Ensures type is valid
       });
 
       form.reset();
@@ -90,15 +152,15 @@ export default function UploadButton() {
       toast({
         variant: "success",
         title: "File Uploaded",
-        description: "Now everyone can view your file",
+        description: "Now everyone can view your file.",
       });
     } catch (err) {
-      console.error("Error uploading file:", err); // Log the error for debugging
+      console.error("Error uploading file:", err);
 
       toast({
         variant: "destructive",
         title: "Something went wrong",
-        description: "Your file could not be uploaded, try again",
+        description: "Your file could not be uploaded, try again.",
       });
     }
   }
