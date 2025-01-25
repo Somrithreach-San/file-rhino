@@ -570,3 +570,18 @@ export const renameFile = mutation({
     return { success: true };
   },
 });
+
+export const permanentlyDeleteFile = mutation({
+  args: {
+    fileId: v.id("files"),
+  },
+  handler: async ({ db }, { fileId }) => {
+    const file = await db.get(fileId);
+    if (!file) {
+      throw new Error("File not found");
+    }
+
+    await db.delete(fileId);
+    return { success: true };
+  },
+});

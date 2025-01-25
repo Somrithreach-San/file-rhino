@@ -131,6 +131,7 @@ export function FileBrowser({
           </TabsList>
 
           <div className="flex gap-2 items-center">
+            <Label htmlFor="type-select">Type Filter</Label>
             <Select
               value={type}
               onValueChange={(newType) => {
