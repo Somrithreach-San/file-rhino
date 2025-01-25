@@ -116,3 +116,7 @@ export const getMe = query({
     return user;
   },
 });
+
+export const getAllUsers = query(async ({ db }) => {
+  return await db.query("users").collect();
+});

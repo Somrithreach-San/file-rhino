@@ -179,6 +179,7 @@ export function FileCard({
         )} */}
         {file.type === "pdf" && <FileTextIcon className="w-20 h-20" />}
         {file.type === "doc" && <FileTextIcon className="w-20 h-20" />}
+        {file.type === "csv" && <FileTextIcon className="w-20 h-20" />}
         {file.type === "excel" && <FileChartColumn className="w-20 h-20" />}
         {file.type === "ppt" && <FileChartPie className="w-20 h-20" />}
         {file.type === "zip" && <FileArchive className="w-20 h-20" />}

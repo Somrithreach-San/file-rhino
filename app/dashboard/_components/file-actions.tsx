@@ -375,6 +375,7 @@ import {
   UndoIcon,
   EditIcon,
   Trash2Icon,
+  PenLine,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -424,6 +425,10 @@ export function FileCardActions({
     useState(false);
   const [newFileName, setNewFileName] = useState(file.name);
 
+  const canEdit =
+    me &&
+    (me.orgIds.some((org) => org.role === "admin") || file.userId === me._id);
+
   return (
     <>
       <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
@@ -445,7 +450,8 @@ export function FileCardActions({
                 toast({
                   variant: "default",
                   title: "File marked for deletion",
-                  description: "Your file will be deleted soon",
+                  description:
+                    "Files in trash will be deleted forever after 30 days",
                 });
               }}
             >
@@ -555,14 +561,16 @@ export function FileCardActions({
                 )}
               </DropdownMenuItem>
 
-              <DropdownMenuItem
-                onClick={() => {
-                  setIsRenameDialogOpen(true);
-                }}
-                className="flex gap-1 items-center cursor-pointer"
-              >
-                <EditIcon className="w-4 h-4" /> Rename
-              </DropdownMenuItem>
+              {canEdit && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setIsRenameDialogOpen(true);
+                  }}
+                  className="flex gap-1 items-center cursor-pointer"
+                >
+                  <PenLine className="w-4 h-4" /> Rename
+                </DropdownMenuItem>
+              )}
 
               <Protect
                 condition={(check) => {
