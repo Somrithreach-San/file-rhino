@@ -138,13 +138,24 @@ export function FileCard({
         </div>
       </CardHeader>
       <CardContent className="h-[200px] flex justify-center items-center">
-        {file.type === "image" && file.url && (
+        {/* {file.type === "image" && file.url && (
           <div className="relative w-full h-full flex justify-center items-center">
             <Image
               alt={file.name}
               width={150} // Fixed width
               height={150} // Fixed height
               className="object-contain max-w-full max-h-full "
+              src={file.url}
+            />
+          </div>
+        )} */}
+        {file.type === "image" && file.url && (
+          <div className="relative w-full h-48 flex justify-center items-center rounded-md overflow-hidden">
+            <Image
+              alt={file.name}
+              width={150} // Fixed width
+              height={150} // Fixed height
+              className="object-contain max-w-full max-h-full"
               src={file.url}
             />
           </div>

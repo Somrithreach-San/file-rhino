@@ -52,7 +52,10 @@ export default function UploadButton() {
     },
   });
 
-  const fileRef = form.register("file");
+  const [isFileDialogOpen, setIsFileDialogOpen] = useState(false);
+  const [fileName, setFileName] = useState("");
+
+  const createFile = useMutation(api.files.createFile);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
@@ -128,10 +131,6 @@ export default function UploadButton() {
     orgId = organization.organization?.id ?? user.user?.id;
   }
 
-  const [isFileDialogOpen, setIsFileDialogOpen] = useState(false);
-
-  const createFile = useMutation(api.files.createFile);
-
   return (
     <Dialog
       open={isFileDialogOpen}
@@ -159,7 +158,14 @@ export default function UploadButton() {
                     <FormItem>
                       <FormLabel>Title</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input
+                          {...field}
+                          value={fileName}
+                          onChange={(e) => {
+                            setFileName(e.target.value);
+                            field.onChange(e);
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -172,7 +178,16 @@ export default function UploadButton() {
                     <FormItem>
                       <FormLabel>File</FormLabel>
                       <FormControl>
-                        <Input type="file" {...fileRef} />
+                        <Input
+                          type="file"
+                          {...form.register("file")}
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files.length > 0) {
+                              setFileName(e.target.files[0].name);
+                              form.setValue("title", e.target.files[0].name);
+                            }
+                          }}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

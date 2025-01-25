@@ -554,3 +554,19 @@ async function hasAccessToFile(
 
   return { user: hasAccess.user, file };
 }
+
+export const renameFile = mutation({
+  args: {
+    fileId: v.id("files"),
+    newName: v.string(),
+  },
+  handler: async ({ db }, { fileId, newName }) => {
+    const file = await db.get(fileId);
+    if (!file) {
+      throw new Error("File not found");
+    }
+
+    await db.patch(fileId, { name: newName });
+    return { success: true };
+  },
+});
