@@ -39,7 +39,7 @@ import { Loader2 } from "lucide-react";
 import { Doc } from "@/convex/_generated/dataModel";
 
 export default function UploadButton() {
-  const { toast } = useToast(); // added this line
+  const { toast } = useToast();
   const organization = useOrganization();
   const user = useUser();
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
@@ -71,8 +71,30 @@ export default function UploadButton() {
 
     const types = {
       "image/png": "image",
+      "image/jpeg": "image",
+      "image/gif": "image",
+      "image/bmp": "image",
+      "image/webp": "image",
+      "image/tiff": "image",
+      "image/svg+xml": "image",
       "application/pdf": "pdf",
       "text/csv": "csv",
+      "application/zip": "zip",
+      "application/x-zip-compressed": "zip",
+      "audio/mpeg": "audio",
+      "audio/wav": "audio",
+      "video/mp4": "video",
+      "video/webm": "video",
+      "text/plain": "text",
+      "application/msword": "doc",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        "doc",
+      "application/vnd.ms-excel": "excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+        "excel",
+      "application/vnd.ms-powerpoint": "ppt",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+        "ppt",
     } as Record<string, Doc<"files">["type"]>;
 
     try {

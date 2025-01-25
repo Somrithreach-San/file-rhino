@@ -72,7 +72,17 @@ export const columns: ColumnDef<{
   _id: Id<"files">;
   _creationTime: number;
   shouldDelete?: boolean;
-  type: "image" | "csv" | "pdf";
+  type:
+    | "image"
+    | "csv"
+    | "pdf"
+    | "zip"
+    | "audio"
+    | "video"
+    | "text"
+    | "doc"
+    | "excel"
+    | "ppt";
   name: string;
   orgId: string;
   fileId: Id<"_storage">;

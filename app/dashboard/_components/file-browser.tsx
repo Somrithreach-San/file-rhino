@@ -131,7 +131,6 @@ export function FileBrowser({
           </TabsList>
 
           <div className="flex gap-2 items-center">
-            <Label htmlFor="type-select">Type Filter</Label>
             <Select
               value={type}
               onValueChange={(newType) => {
@@ -139,13 +138,20 @@ export function FileBrowser({
               }}
             >
               <SelectTrigger id="type-select" className="w-[180px]">
-                <SelectValue />
+                <SelectValue placeholder="Type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="image">Image</SelectItem>
                 <SelectItem value="csv">CSV</SelectItem>
                 <SelectItem value="pdf">PDF</SelectItem>
+                <SelectItem value="video">Video</SelectItem>
+                <SelectItem value="audio">Audio</SelectItem>
+                <SelectItem value="text">Plain Text</SelectItem>
+                <SelectItem value="doc">Word</SelectItem>
+                <SelectItem value="ppt">Power Point</SelectItem>
+                <SelectItem value="excel">Excel</SelectItem>
+                <SelectItem value="zip">ZIP</SelectItem>
               </SelectContent>
             </Select>
           </div>
